@@ -11,6 +11,6 @@
   },
   "type": "tool",
   "dependencies": {
-    "com.chuvi.extensions": "1.0.1"
+    "com.chuvi.extensions": "https://github.com/chuvi1155/com.chuvi.extensions.git#1.0.1"
   }
 }
