@@ -1,7 +1,9 @@
 {
     "name": "Unity.XMLSystem",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "Unity.ChuviExtensions"
+    ],
     "includePlatforms": [
         "CloudRendering",
         "Editor",
