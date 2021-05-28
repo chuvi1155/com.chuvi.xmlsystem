@@ -9,5 +9,8 @@
     "email": "chuvi1155@gmail.com",
     "url": ""
   },
-  "type": "tool"
+  "type": "tool",
+  "dependencies": {
+    "com.chuvi.extensions": "1.0.1"
+  }
 }
