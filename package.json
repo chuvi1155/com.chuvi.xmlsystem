@@ -10,7 +10,7 @@
     "url": ""
   },
   "type": "tool",
-  "dependencies": {
+  "gitDependencies": {
     "com.chuvi.extensions": "https://github.com/chuvi1155/com.chuvi.extensions.git"
   }
 }
