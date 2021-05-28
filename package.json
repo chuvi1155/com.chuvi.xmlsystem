@@ -1,0 +1,13 @@
+{
+  "name": "com.chuvi.xmlsystem",
+  "displayName": "XMLSystem",
+  "version": "1.0.1",
+  "unity": "2018.1",
+  "description": "Simple XML parser",
+  "author": {
+    "name": "Stanislav Blinov",
+    "email": "chuvi1155@gmail.com",
+    "url": ""
+  },
+  "type": "tool"
+}
