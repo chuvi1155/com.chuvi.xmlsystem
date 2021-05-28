@@ -3,7 +3,7 @@
   "displayName": "XMLSystem",
   "version": "1.0.2",
   "unity": "2018.1",
-  "description": "Simple XML parser",
+  "description": "Simple XML parser.\nDependices: https://github.com/chuvi1155/com.chuvi.extensions.git",
   "author": {
     "name": "Stanislav Blinov",
     "email": "chuvi1155@gmail.com",
