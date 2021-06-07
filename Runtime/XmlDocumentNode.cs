@@ -1814,7 +1814,7 @@ namespace XMLSystem.Xml
         {
             public bool CanConvert(Type type)
             {
-#if UNITY_STANDALONE
+#if UNITY_2018_1_OR_NEWER
                 return type == typeof(UnityEngine.Color) || type == typeof(UnityEngine.Color32) ||
                type == typeof(UnityEngine.Vector2) || type == typeof(UnityEngine.Vector2Int) ||
                type == typeof(UnityEngine.Vector3) || type == typeof(UnityEngine.Vector3Int) ||
@@ -1824,7 +1824,7 @@ namespace XMLSystem.Xml
             }
             public virtual T Convert<T>(string value)
             {
-#if UNITY_STANDALONE
+#if UNITY_2018_1_OR_NEWER
                 if (typeof(T) == typeof(UnityEngine.Color))
                 {
                     int n1 = value.IndexOf("(") + 1;
@@ -2014,7 +2014,7 @@ namespace XMLSystem.Xml
             {
                 if (returnedType == null)
                     returnedType = result.GetType();
-#if UNITY_STANDALONE
+#if UNITY_2018_1_OR_NEWER
                 if (returnedType == typeof(UnityEngine.Color))
                 {
                     int n1 = value.IndexOf("(") + 1;
