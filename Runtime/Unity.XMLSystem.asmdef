@@ -7,8 +7,6 @@
     "includePlatforms": [
         "CloudRendering",
         "Editor",
-        "GameCoreScarlett",
-        "GameCoreXboxOne",
         "LinuxStandalone64",
         "Lumin",
         "macOSStandalone",
