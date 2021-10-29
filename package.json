@@ -1,7 +1,7 @@
 {
   "name": "com.chuvi.xmlsystem",
   "displayName": "XMLSystem",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "unity": "2018.1",
   "description": "Simple XML parser.\nDependices: https://github.com/chuvi1155/com.chuvi.extensions.git",
   "author": {
