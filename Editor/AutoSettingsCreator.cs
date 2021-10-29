@@ -15,6 +15,8 @@ public class AutoSettingsCreator : EditorWindow
     MonoBehaviour[] scripts;
     bool[] checks;
     Vector2 scrollPos;
+    bool createValidated = false;
+
     private void OnGUI()
     {
         if (GUILayout.Button("Update"))
@@ -42,6 +44,8 @@ public class AutoSettingsCreator : EditorWindow
         EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
 
+        createValidated = EditorGUILayout.ToggleLeft("Create validate method", createValidated);
+
         if (GUILayout.Button("Create settings (XML)"))
         {
             System.Globalization.CultureInfo ci = new System.Globalization.CultureInfo("en-US");
@@ -65,7 +69,9 @@ public class AutoSettingsCreator : EditorWindow
         for (int i = 0; i < fileds.Length; i++)
         {
             var field = fileds[i];
-            lines[i] = $"\t\t{field.Name} = XMLSystem.Settings.XMLSettings.GetValueWithAdd(\"{type.Name}_{field.Name}\", {field.Name});";
+            
+            lines[i] = $"\t\t{field.Name} = XMLSystem.Settings.XMLSettings.GetValueWithAdd(\"{type.Name}\", \"{field.Name}\", {field.Name}{(createValidated ? ", OnSettingsValidate" : "")});";
+            
             if (scriptText.Contains(lines[i]))
                 lines[i] = "";
         }
@@ -100,6 +106,17 @@ public class AutoSettingsCreator : EditorWindow
             scriptText = scriptText.Replace(bodyStart, newbodyStart);
         else
             scriptText = scriptText.Insert(insertIndex, newbodyStart);
+
+        if (createValidated)
+        {
+            insertIndex = scriptText.IndexOf("}", insertIndex) + 1;
+            string onValidateMethod = "\n\tprivate void OnValidate(string group, string key, string typeName, bool isValid)\n" +
+                                      "\t{\n" +
+                                      "\n" +
+                                      "\t}\n";
+
+            scriptText = scriptText.Insert(insertIndex, onValidateMethod);
+        }
 
         File.WriteAllText(path, scriptText);
         AssetDatabase.WriteImportSettingsIfDirty(path);
