@@ -1,0 +1,23 @@
+{
+    "name": "Unity.XmlSystem.Editor",
+    "references": [
+        "Unity.ChuviExtensions"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.chuvi.xmlsystem",
+            "expression": "1.0.0",
+            "define": "XMLSYSTEM_EDITOR"
+        }
+    ],
+    "noEngineReferences": false
+}
