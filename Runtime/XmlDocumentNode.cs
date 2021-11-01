@@ -1824,6 +1824,9 @@ namespace XMLSystem.Xml
             }
             public virtual T Convert<T>(string value)
             {
+                System.Globalization.CultureInfo ci = new System.Globalization.CultureInfo("en-US");
+                System.Threading.Thread.CurrentThread.CurrentCulture = ci;
+                System.Threading.Thread.CurrentThread.CurrentUICulture = ci;
 #if UNITY_2018_1_OR_NEWER
                 if (typeof(T) == typeof(UnityEngine.Color))
                 {
@@ -1833,12 +1836,12 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
-                        float b = float.Parse(bytes[2]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
+                        float b = float.Parse(bytes[2], ci);
                         float a = 1;
                         if (bytes.Length == 4)
-                            a = float.Parse(bytes[3]);
+                            a = float.Parse(bytes[3], ci);
                         object col = new UnityEngine.Color(r, g, b, a);
                         return (T)col;
                     }
@@ -1871,8 +1874,8 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 1)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
                         object col = new UnityEngine.Vector2(r, g);
                         return (T)col;
                     }
@@ -1901,16 +1904,16 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
-                        float b = float.Parse(bytes[2]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
+                        float b = float.Parse(bytes[2], ci);
                         object col = new UnityEngine.Vector3(r, g, b);
                         return (T)col;
                     }
                     else if (bytes.Length == 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
                         float b = 0;
                         object col = new UnityEngine.Vector3(r, g, b);
                         return (T)col;
@@ -1949,23 +1952,23 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
-                        float b = float.Parse(bytes[2]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
+                        float b = float.Parse(bytes[2], ci);
                         float a = 1;
                         if (bytes.Length == 4)
-                            a = float.Parse(bytes[3]);
+                            a = float.Parse(bytes[3], ci);
                         object col = new UnityEngine.Vector4(r, g, b, a);
                         return (T)col;
                     }
                     else if (bytes.Length == 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
                         float b = 0;
                         float a = 0;
                         if (bytes.Length == 4)
-                            a = float.Parse(bytes[3]);
+                            a = float.Parse(bytes[3], ci);
                         object col = new UnityEngine.Vector4(r, g, b, a);
                         return (T)col;
                     }
@@ -1979,10 +1982,10 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length == 4)
                     {
-                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1));
-                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1));
-                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1));
-                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1));
+                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1), ci);
+                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1), ci);
+                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1), ci);
+                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1), ci);
                         object col = new UnityEngine.Rect(x, y, w, h);
                         return (T)col;
                     }
@@ -2012,6 +2015,9 @@ namespace XMLSystem.Xml
             }
             public void Convert(string value, ref object result, Type returnedType = null)
             {
+                System.Globalization.CultureInfo ci = new System.Globalization.CultureInfo("en-US");
+                System.Threading.Thread.CurrentThread.CurrentCulture = ci;
+                System.Threading.Thread.CurrentThread.CurrentUICulture = ci;
                 if (returnedType == null)
                     returnedType = result.GetType();
 #if UNITY_2018_1_OR_NEWER
@@ -2023,12 +2029,12 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
-                        float b = float.Parse(bytes[2]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
+                        float b = float.Parse(bytes[2], ci);
                         float a = 1;
                         if (bytes.Length == 4)
-                            a = float.Parse(bytes[3]);
+                            a = float.Parse(bytes[3], ci);
                         object col = new UnityEngine.Color(r, g, b, a);
                         result = col;
                     }
@@ -2061,8 +2067,8 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 1)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
                         object col = new UnityEngine.Vector2(r, g);
                         result = col;
                     }
@@ -2091,16 +2097,16 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
-                        float b = float.Parse(bytes[2]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
+                        float b = float.Parse(bytes[2], ci);
                         object col = new UnityEngine.Vector3(r, g, b);
                         result = col;
                     }
                     else if (bytes.Length == 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
                         object col = new UnityEngine.Vector3(r, g, 0);
                         result = col;
                     }
@@ -2130,12 +2136,12 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0]);
-                        float g = float.Parse(bytes[1]);
-                        float b = float.Parse(bytes[2]);
+                        float r = float.Parse(bytes[0], ci);
+                        float g = float.Parse(bytes[1], ci);
+                        float b = float.Parse(bytes[2], ci);
                         float a = 1;
                         if (bytes.Length == 4)
-                            a = float.Parse(bytes[3]);
+                            a = float.Parse(bytes[3], ci);
                         object col = new UnityEngine.Vector4(r, g, b, a);
                         result = col;
                     }
@@ -2149,10 +2155,10 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length == 4)
                     {
-                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1));
-                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1));
-                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1));
-                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1));
+                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1), ci);
+                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1), ci);
+                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1), ci);
+                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1), ci);
                         object col = new UnityEngine.Rect(x, y, w, h);
                         result = col;
                     }
