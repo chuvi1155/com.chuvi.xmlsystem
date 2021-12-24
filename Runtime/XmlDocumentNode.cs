@@ -44,6 +44,9 @@ namespace XMLSystem.Xml
         private bool isHTML = false;
         private static ICustomConverter converter;
         public event System.Action<IXmlDocumentNode> ChangeNode;
+
+        public static CultureInfo CurrentCulture { get; set; } = new CultureInfo("en-US");
+
         /// <summary>
         /// 
         /// </summary>
@@ -1654,10 +1657,10 @@ namespace XMLSystem.Xml
                     return (T)Enum.Parse(typeof(T), value);
 
                 if (typeof(T) == typeof(float))
-                    return (T)System.Convert.ChangeType(value.Replace(",", "."), typeof(T), new CultureInfo("en-US"));
+                    return (T)System.Convert.ChangeType(value.Replace(",", "."), typeof(T), CurrentCulture);
 
                 if (typeof(T).IsPrimitive)
-                    return (T)System.Convert.ChangeType(value, typeof(T), new CultureInfo("en-US"));
+                    return (T)System.Convert.ChangeType(value, typeof(T), CurrentCulture);
 
                 if (converter != null)
                     return converter.Convert<T>(value);
@@ -1824,200 +1827,198 @@ namespace XMLSystem.Xml
             }
             public virtual T Convert<T>(string value)
             {
-                System.Globalization.CultureInfo ci = new System.Globalization.CultureInfo("en-US");
-                System.Threading.Thread.CurrentThread.CurrentCulture = ci;
-                System.Threading.Thread.CurrentThread.CurrentUICulture = ci;
-#if UNITY_2018_1_OR_NEWER
-                if (typeof(T) == typeof(UnityEngine.Color))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length > 2)
-                    {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = float.Parse(bytes[2], ci);
-                        float a = 1;
-                        if (bytes.Length == 4)
-                            a = float.Parse(bytes[3], ci);
-                        object col = new UnityEngine.Color(r, g, b, a);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.Color32))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length > 2)
-                    {
-                        byte r = byte.Parse(bytes[0]);
-                        byte g = byte.Parse(bytes[1]);
-                        byte b = byte.Parse(bytes[2]);
-                        byte a = 1;
-                        if (bytes.Length == 4)
-                            a = byte.Parse(bytes[3]);
-                        object col = new UnityEngine.Color32(r, g, b, a);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.Vector2))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length > 1)
-                    {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        object col = new UnityEngine.Vector2(r, g);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.Vector2Int))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length > 1)
-                    {
-                        int r = int.Parse(bytes[0]);
-                        int g = int.Parse(bytes[1]);
-                        object col = new UnityEngine.Vector2Int(r, g);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.Vector3))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length > 2)
-                    {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = float.Parse(bytes[2], ci);
-                        object col = new UnityEngine.Vector3(r, g, b);
-                        return (T)col;
-                    }
-                    else if (bytes.Length == 2)
-                    {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = 0;
-                        object col = new UnityEngine.Vector3(r, g, b);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.Vector3Int))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length > 2)
-                    {
-                        int r = int.Parse(bytes[0]);
-                        int g = int.Parse(bytes[1]);
-                        int b = int.Parse(bytes[2]);
-                        object col = new UnityEngine.Vector3Int(r, g, b);
-                        return (T)col;
-                    }
-                    else if (bytes.Length == 2)
-                    {
-                        int r = int.Parse(bytes[0]);
-                        int g = int.Parse(bytes[1]);
-                        int b = 0;
-                        object col = new UnityEngine.Vector3Int(r, g, b);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.Vector4))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length > 2)
-                    {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = float.Parse(bytes[2], ci);
-                        float a = 1;
-                        if (bytes.Length == 4)
-                            a = float.Parse(bytes[3], ci);
-                        object col = new UnityEngine.Vector4(r, g, b, a);
-                        return (T)col;
-                    }
-                    else if (bytes.Length == 2)
-                    {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = 0;
-                        float a = 0;
-                        if (bytes.Length == 4)
-                            a = float.Parse(bytes[3], ci);
-                        object col = new UnityEngine.Vector4(r, g, b, a);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.Rect))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length == 4)
-                    {
-                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1), ci);
-                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1), ci);
-                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1), ci);
-                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1), ci);
-                        object col = new UnityEngine.Rect(x, y, w, h);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-                else if (typeof(T) == typeof(UnityEngine.RectInt))
-                {
-                    int n1 = value.IndexOf("(") + 1;
-                    int n2 = value.IndexOf(")");
-                    string val = value.Substring(n1, n2 - n1);
-                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (bytes.Length == 4)
-                    {
-                        int x = int.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1));
-                        int y = int.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1));
-                        int w = int.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1));
-                        int h = int.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1));
-                        object col = new UnityEngine.RectInt(x, y, w, h);
-                        return (T)col;
-                    }
-                    else return default(T);
-                }
-#endif
-                if (typeof(T) == typeof(System.Guid))
-                    return (T)(object)System.Guid.Parse(value);
-                return (T)System.Convert.ChangeType(value, typeof(T));
+                object result = new object();
+                Convert(value, ref result, typeof(T));
+                return (T)result;
+//                CultureInfo ci = new CultureInfo("en-US");
+//#if UNITY_2018_1_OR_NEWER
+//                if (typeof(T) == typeof(UnityEngine.Color))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length > 2)
+//                    {
+//                        float r = float.Parse(bytes[0], ci);
+//                        float g = float.Parse(bytes[1], ci);
+//                        float b = float.Parse(bytes[2], ci);
+//                        float a = 1;
+//                        if (bytes.Length == 4)
+//                            a = float.Parse(bytes[3], ci);
+//                        object col = new UnityEngine.Color(r, g, b, a);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.Color32))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length > 2)
+//                    {
+//                        byte r = byte.Parse(bytes[0]);
+//                        byte g = byte.Parse(bytes[1]);
+//                        byte b = byte.Parse(bytes[2]);
+//                        byte a = 1;
+//                        if (bytes.Length == 4)
+//                            a = byte.Parse(bytes[3]);
+//                        object col = new UnityEngine.Color32(r, g, b, a);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.Vector2))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length > 1)
+//                    {
+//                        float r = float.Parse(bytes[0], ci);
+//                        float g = float.Parse(bytes[1], ci);
+//                        object col = new UnityEngine.Vector2(r, g);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.Vector2Int))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length > 1)
+//                    {
+//                        int r = int.Parse(bytes[0]);
+//                        int g = int.Parse(bytes[1]);
+//                        object col = new UnityEngine.Vector2Int(r, g);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.Vector3))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length > 2)
+//                    {
+//                        float r = float.Parse(bytes[0], ci);
+//                        float g = float.Parse(bytes[1], ci);
+//                        float b = float.Parse(bytes[2], ci);
+//                        object col = new UnityEngine.Vector3(r, g, b);
+//                        return (T)col;
+//                    }
+//                    else if (bytes.Length == 2)
+//                    {
+//                        float r = float.Parse(bytes[0], ci);
+//                        float g = float.Parse(bytes[1], ci);
+//                        float b = 0;
+//                        object col = new UnityEngine.Vector3(r, g, b);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.Vector3Int))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length > 2)
+//                    {
+//                        int r = int.Parse(bytes[0]);
+//                        int g = int.Parse(bytes[1]);
+//                        int b = int.Parse(bytes[2]);
+//                        object col = new UnityEngine.Vector3Int(r, g, b);
+//                        return (T)col;
+//                    }
+//                    else if (bytes.Length == 2)
+//                    {
+//                        int r = int.Parse(bytes[0]);
+//                        int g = int.Parse(bytes[1]);
+//                        int b = 0;
+//                        object col = new UnityEngine.Vector3Int(r, g, b);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.Vector4))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length > 2)
+//                    {
+//                        float r = float.Parse(bytes[0], ci);
+//                        float g = float.Parse(bytes[1], ci);
+//                        float b = float.Parse(bytes[2], ci);
+//                        float a = 1;
+//                        if (bytes.Length == 4)
+//                            a = float.Parse(bytes[3], ci);
+//                        object col = new UnityEngine.Vector4(r, g, b, a);
+//                        return (T)col;
+//                    }
+//                    else if (bytes.Length == 2)
+//                    {
+//                        float r = float.Parse(bytes[0], ci);
+//                        float g = float.Parse(bytes[1], ci);
+//                        float b = 0;
+//                        float a = 0;
+//                        if (bytes.Length == 4)
+//                            a = float.Parse(bytes[3], ci);
+//                        object col = new UnityEngine.Vector4(r, g, b, a);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.Rect))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length == 4)
+//                    {
+//                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1), ci);
+//                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1), ci);
+//                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1), ci);
+//                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1), ci);
+//                        object col = new UnityEngine.Rect(x, y, w, h);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//                else if (typeof(T) == typeof(UnityEngine.RectInt))
+//                {
+//                    int n1 = value.IndexOf("(") + 1;
+//                    int n2 = value.IndexOf(")");
+//                    string val = value.Substring(n1, n2 - n1);
+//                    string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+//                    if (bytes.Length == 4)
+//                    {
+//                        int x = int.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1));
+//                        int y = int.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1));
+//                        int w = int.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1));
+//                        int h = int.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1));
+//                        object col = new UnityEngine.RectInt(x, y, w, h);
+//                        return (T)col;
+//                    }
+//                    else return default(T);
+//                }
+//#endif
+//                if (typeof(T) == typeof(System.Guid))
+//                    return (T)(object)System.Guid.Parse(value);
+//                return (T)System.Convert.ChangeType(value, typeof(T));
             }
             public void Convert(string value, ref object result, Type returnedType = null)
             {
-                System.Globalization.CultureInfo ci = new System.Globalization.CultureInfo("en-US");
-                System.Threading.Thread.CurrentThread.CurrentCulture = ci;
-                System.Threading.Thread.CurrentThread.CurrentUICulture = ci;
                 if (returnedType == null)
                     returnedType = result.GetType();
 #if UNITY_2018_1_OR_NEWER
@@ -2029,16 +2030,17 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = float.Parse(bytes[2], ci);
+                        float r = float.Parse(bytes[0], CurrentCulture);
+                        float g = float.Parse(bytes[1], CurrentCulture);
+                        float b = float.Parse(bytes[2], CurrentCulture);
                         float a = 1;
                         if (bytes.Length == 4)
-                            a = float.Parse(bytes[3], ci);
+                            a = float.Parse(bytes[3], CurrentCulture);
                         object col = new UnityEngine.Color(r, g, b, a);
                         result = col;
                     }
                     else result = default(UnityEngine.Color);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Color32))
                 {
@@ -2058,6 +2060,7 @@ namespace XMLSystem.Xml
                         result = col;
                     }
                     else result = default(UnityEngine.Color32);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Vector2))
                 {
@@ -2067,12 +2070,13 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 1)
                     {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
+                        float r = float.Parse(bytes[0], CurrentCulture);
+                        float g = float.Parse(bytes[1], CurrentCulture);
                         object col = new UnityEngine.Vector2(r, g);
                         result = col;
                     }
                     else result = default(UnityEngine.Vector2);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Vector2Int))
                 {
@@ -2088,6 +2092,7 @@ namespace XMLSystem.Xml
                         result = col;
                     }
                     else result = default(UnityEngine.Vector2Int);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Vector3))
                 {
@@ -2097,20 +2102,21 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = float.Parse(bytes[2], ci);
+                        float r = float.Parse(bytes[0], CurrentCulture);
+                        float g = float.Parse(bytes[1], CurrentCulture);
+                        float b = float.Parse(bytes[2], CurrentCulture);
                         object col = new UnityEngine.Vector3(r, g, b);
                         result = col;
                     }
                     else if (bytes.Length == 2)
                     {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
+                        float r = float.Parse(bytes[0], CurrentCulture);
+                        float g = float.Parse(bytes[1], CurrentCulture);
                         object col = new UnityEngine.Vector3(r, g, 0);
                         result = col;
                     }
                     else result = default(UnityEngine.Vector3);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Vector3Int))
                 {
@@ -2127,6 +2133,7 @@ namespace XMLSystem.Xml
                         result = col;
                     }
                     else result = default(UnityEngine.Vector3Int);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Vector4))
                 {
@@ -2136,16 +2143,17 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = float.Parse(bytes[2], ci);
+                        float r = float.Parse(bytes[0], CurrentCulture);
+                        float g = float.Parse(bytes[1], CurrentCulture);
+                        float b = float.Parse(bytes[2], CurrentCulture);
                         float a = 1;
                         if (bytes.Length == 4)
-                            a = float.Parse(bytes[3], ci);
+                            a = float.Parse(bytes[3], CurrentCulture);
                         object col = new UnityEngine.Vector4(r, g, b, a);
                         result = col;
                     }
                     else result = default(UnityEngine.Vector4);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Rect))
                 {
@@ -2155,14 +2163,15 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length == 4)
                     {
-                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1), ci);
-                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1), ci);
-                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1), ci);
-                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1), ci);
+                        float x = float.Parse(bytes[0].Substring(bytes[0].IndexOf(":") + 1), CurrentCulture);
+                        float y = float.Parse(bytes[1].Substring(bytes[1].IndexOf(":") + 1), CurrentCulture);
+                        float w = float.Parse(bytes[2].Substring(bytes[2].IndexOf(":") + 1), CurrentCulture);
+                        float h = float.Parse(bytes[3].Substring(bytes[3].IndexOf(":") + 1), CurrentCulture);
                         object col = new UnityEngine.Rect(x, y, w, h);
                         result = col;
                     }
                     else result = default(UnityEngine.Rect);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.RectInt))
                 {
@@ -2179,10 +2188,12 @@ namespace XMLSystem.Xml
                         object col = new UnityEngine.RectInt(x, y, w, h);
                         result = col;
                     }
-                    else result = default(UnityEngine.RectInt);
+                    else 
+                        result = default(UnityEngine.RectInt);
+                    return;
                 }
 #endif
-                result = System.Convert.ChangeType(value, returnedType);
+                result = System.Convert.ChangeType(value, returnedType, CurrentCulture);
             }
         }
     }
