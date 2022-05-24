@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections;
@@ -435,8 +435,13 @@ namespace XMLSystem.Xml
 
             return res;
         }
-
-        public static string EncodeToInnerText(string xml)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <param name="escapeSpace">Если True, заменяет пробелы на &#160;</param>
+        /// <returns></returns>
+        public static string EncodeToInnerText(string xml, bool escapeSpace = false)
         {
             string temp = xml;
 
@@ -446,11 +451,18 @@ namespace XMLSystem.Xml
             temp = temp.Replace("'", "&apos;");
             temp = temp.Replace("\"", "&quot;");
             temp = temp.Replace("\n", "&#10;");
-            temp = temp.Replace(" ", "&#160;");
+
+            if (escapeSpace)
+                temp = temp.Replace(" ", "&#160;");
 
             return temp;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="innertext"></param>
+        /// <returns></returns>
         public static string DecodeToXML(string innertext)
         {
             string temp = innertext;
