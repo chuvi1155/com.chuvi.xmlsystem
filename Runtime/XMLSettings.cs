@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -12,6 +12,12 @@ namespace XMLSystem.Settings
     /// </summary>
     public class XMLSettings
     {
+        public delegate void ChangedSetting(string group, string key);
+        public delegate void LoadComplete(UserXMLSettings settings);
+
+        public static event ChangedSetting OnChangeSetting;
+        public static event LoadComplete OnLoadComplete;
+
         private static UserXMLSettings instance;
         /// <summary>
         /// Имя файла по умолчанию
@@ -36,6 +42,7 @@ namespace XMLSystem.Settings
             Thread.CurrentThread.CurrentUICulture = ci;
 
             instance = ReloadXML("settings.xml");
+            instance.OnChangeSetting += (group, key) => OnChangeSetting?.Invoke(group, key);
         }
 
         /// <summary>
@@ -48,11 +55,13 @@ namespace XMLSystem.Settings
             if (instance == null)
             {
                 var _instance = new UserXMLSettings(filename);
+                OnLoadComplete?.Invoke(_instance);
                 return _instance;
             }
             else
             {
                 instance.Load(filename);
+                OnLoadComplete?.Invoke(instance);
                 return instance;
             }
         }
@@ -235,6 +244,10 @@ namespace XMLSystem.Settings
     /// </summary>
     public class UserXMLSettings
     {
+        public delegate void LoadComplete(UserXMLSettings settings);
+
+        public event ChangeEvent OnChangeSetting;
+        public event LoadComplete OnLoadComplete;
         /// <summary>
         /// Делегат проверки типа данных значения
         /// </summary>
@@ -307,6 +320,8 @@ namespace XMLSystem.Settings
             doc.Load(File.ReadAllText(FileName));
             if (string.IsNullOrEmpty(doc.Name)) // если файл есть, но он пустой
                 doc.SetMainNode(XmlDocument.CreateNode("SETTINGS"));
+
+            OnLoadComplete?.Invoke(this);
         }
         /// <summary>
         /// Определяет существование указанной группы
@@ -514,7 +529,9 @@ namespace XMLSystem.Settings
             {
                 if (doc.TrySelectNode(string.Format("*/{0}/{1}", group, key), out node))
                 {
-                    node.InnerText = TypeToString(value);
+                    string newVal = TypeToString(value);
+                    bool changed = node.InnerText != newVal;
+                    node.InnerText = newVal;
 
                     var attr = node.Attributes["type"];
                     if (attr == null) node.AddAttribute("type", value.GetType().Name);
@@ -524,6 +541,9 @@ namespace XMLSystem.Settings
                         node.NodeType = XNodeType.Coment;
                     if (save)
                         Save(FileName);
+
+                    if (changed)
+                        OnChangeSetting?.Invoke(group, key);
                     return;
                 } 
             }
