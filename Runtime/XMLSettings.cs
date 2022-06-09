@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -36,10 +36,12 @@ namespace XMLSystem.Settings
             Thread.CurrentThread.CurrentUICulture = ci;
             instance = ReloadXML("settings.xml");
 
+#if CHUVI_EXTENSIONS
             UnityEngine.GameObject go = UnityEngine.Resources.Load<UnityEngine.GameObject>("Settings");
             var inst = UnityEngine.GameObject.Instantiate(go);
             var contr = inst.GetComponent<ISettingsController>();
-            contr.Settings = instance;
+            contr.Settings = instance; 
+#endif
         }
 
         /// <summary>
@@ -237,7 +239,10 @@ namespace XMLSystem.Settings
     /// <summary>
     /// Класс создает файл настроек в формате XML
     /// </summary>
-    public class UserXMLSettings : ISettings
+    public class UserXMLSettings
+#if CHUVI_EXTENSIONS
+        : ISettings 
+#endif
     {
         //private Dictionary<GroupValue, XML_Values> groups = new Dictionary<GroupValue, XML_Values>();
 
@@ -267,7 +272,9 @@ namespace XMLSystem.Settings
         /// Экземпляр документа файла настроек
         /// </summary>
         public XmlDocument XML { get { return doc; } }
-        object ISettings.RawData => XML;
+#if CHUVI_EXTENSIONS
+        object ISettings.RawData => XML; 
+#endif
         /// <summary>
         /// Имя группы (основного узла) по умолчанию
         /// </summary>
@@ -603,6 +610,7 @@ namespace XMLSystem.Settings
             doc.Save(fileName);
         }
 
+#if CHUVI_EXTENSIONS
         ISettingsData[] ISettings.GetData()
         {
             List<ISettingsData> data = new List<ISettingsData>();
@@ -651,20 +659,6 @@ namespace XMLSystem.Settings
                         {
                             currentType = System.Type.GetType("System." + attr.Value);
                         }
-//                        if (currentType == null)
-//                        {
-//#if UNITY_EDITOR
-//                            string assm_path = "Library/ScriptAssemblies/Assembly-CSharp.dll";
-//#else
-//string assm_path = "Assembly-CSharp.dll";
-//#endif
-//                            var assm_ex = System.Reflection.Assembly.LoadFrom(assm_path);
-//                            var t = typeof(UnityEngine.Application).Assembly.GetModules();
-//                            var uetypes = assm_ex.GetTypes(); // 1 условие, если нет то                                   
-//                            var types = GetType().Assembly.GetTypes(); // 2 условие                 
-//                            currentType = System.Array.Find(uetypes, type => type.Name == attr.Value);   
-                          
-//                        }
                         if (currentType == null)
                         {
 #if UNITY_EDITOR
@@ -673,13 +667,13 @@ namespace XMLSystem.Settings
                             string assm_path = $"{UnityEngine.Application.productName}_Data/Managed/Assembly-CSharp.dll";
 #endif
                             var assm_ex = System.Reflection.Assembly.LoadFrom(assm_path);
-                            var uetypes = assm_ex.GetTypes();                   
+                            var uetypes = assm_ex.GetTypes();
                             currentType = System.Array.Find(uetypes, type => type.Name == attr.Value);
                         }
 
                         if (currentType == null)
-                        {                         
-                            var types = GetType().Assembly.GetTypes();           
+                        {
+                            var types = GetType().Assembly.GetTypes();
                             currentType = System.Array.Find(types, type => type.Name == attr.Value);
                         }
                         if (currentType == null)
@@ -696,6 +690,7 @@ namespace XMLSystem.Settings
             {
                 settings.SetValue(group, key, value, false);
             }
-        }
+        } 
+#endif
     }
 }
