@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -12,13 +12,7 @@ namespace XMLSystem.Settings
     /// </summary>
     public class XMLSettings
     {
-        public delegate void ChangedSetting(string group, string key);
-        public delegate void LoadComplete(UserXMLSettings settings);
-
-        public static event ChangedSetting OnChangeSetting;
-        public static event LoadComplete OnLoadComplete;
-
-        private static UserXMLSettings instance;
+        public static UserXMLSettings instance;
         /// <summary>
         /// Имя файла по умолчанию
         /// </summary>
@@ -40,9 +34,12 @@ namespace XMLSystem.Settings
             System.Globalization.CultureInfo ci = new System.Globalization.CultureInfo("en-US");
             Thread.CurrentThread.CurrentCulture = ci;
             Thread.CurrentThread.CurrentUICulture = ci;
-
             instance = ReloadXML("settings.xml");
-            instance.OnChangeSetting += (group, key) => OnChangeSetting?.Invoke(group, key);
+
+            UnityEngine.GameObject go = UnityEngine.Resources.Load<UnityEngine.GameObject>("Settings");
+            var inst = UnityEngine.GameObject.Instantiate(go);
+            var contr = inst.GetComponent<ISettingsController>();
+            contr.Settings = instance;
         }
 
         /// <summary>
@@ -55,13 +52,11 @@ namespace XMLSystem.Settings
             if (instance == null)
             {
                 var _instance = new UserXMLSettings(filename);
-                OnLoadComplete?.Invoke(_instance);
                 return _instance;
             }
             else
             {
                 instance.Load(filename);
-                OnLoadComplete?.Invoke(instance);
                 return instance;
             }
         }
@@ -242,12 +237,12 @@ namespace XMLSystem.Settings
     /// <summary>
     /// Класс создает файл настроек в формате XML
     /// </summary>
-    public class UserXMLSettings
+    public class UserXMLSettings : ISettings
     {
-        public delegate void LoadComplete(UserXMLSettings settings);
+        //private Dictionary<GroupValue, XML_Values> groups = new Dictionary<GroupValue, XML_Values>();
 
-        public event ChangeEvent OnChangeSetting;
-        public event LoadComplete OnLoadComplete;
+        //public Dictionary<GroupValue, XML_Values> data => groups;
+
         /// <summary>
         /// Делегат проверки типа данных значения
         /// </summary>
@@ -266,15 +261,17 @@ namespace XMLSystem.Settings
         private XmlDocument doc;
         private string defaultGroup = "DEFAULT";
 
-        private string fileName = "Settings.xml";
+        private string fileName = "settings.xml";
 
         /// <summary>
         /// Экземпляр документа файла настроек
         /// </summary>
         public XmlDocument XML { get { return doc; } }
+        object ISettings.RawData => XML;
         /// <summary>
         /// Имя группы (основного узла) по умолчанию
         /// </summary>
+        /// 
         public string DefaultGroup
         {
             get { return defaultGroup; }
@@ -320,8 +317,6 @@ namespace XMLSystem.Settings
             doc.Load(File.ReadAllText(FileName));
             if (string.IsNullOrEmpty(doc.Name)) // если файл есть, но он пустой
                 doc.SetMainNode(XmlDocument.CreateNode("SETTINGS"));
-
-            OnLoadComplete?.Invoke(this);
         }
         /// <summary>
         /// Определяет существование указанной группы
@@ -529,9 +524,7 @@ namespace XMLSystem.Settings
             {
                 if (doc.TrySelectNode(string.Format("*/{0}/{1}", group, key), out node))
                 {
-                    string newVal = TypeToString(value);
-                    bool changed = node.InnerText != newVal;
-                    node.InnerText = newVal;
+                    node.InnerText = TypeToString(value);
 
                     var attr = node.Attributes["type"];
                     if (attr == null) node.AddAttribute("type", value.GetType().Name);
@@ -541,9 +534,6 @@ namespace XMLSystem.Settings
                         node.NodeType = XNodeType.Coment;
                     if (save)
                         Save(FileName);
-
-                    if (changed)
-                        OnChangeSetting?.Invoke(group, key);
                     return;
                 } 
             }
@@ -612,6 +602,100 @@ namespace XMLSystem.Settings
         {
             doc.Save(fileName);
         }
-        
+
+        ISettingsData[] ISettings.GetData()
+        {
+            List<ISettingsData> data = new List<ISettingsData>();
+            foreach (var group in doc)
+            {
+                foreach (var key in group)
+                {
+                    if (string.IsNullOrEmpty(key.InnerText))
+                        continue;
+
+                    XmlData idata = new XmlData(group.Name, key.Name, this);
+                    data.Add(idata);
+                }
+            }
+            return data.ToArray();
+        }
+
+        private class XmlData : ISettingsData
+        {
+            string group, key;
+            UserXMLSettings settings;
+            string ISettingsData.Group => group;
+            string ISettingsData.Key => key;
+
+            public XmlData(string _group, string _key, UserXMLSettings _settings)
+            {
+                group = _group;
+                key = _key;
+                settings = _settings;
+            }
+
+            T ISettingsData.GetData<T>()
+            {
+                return settings.GetValue<T>(group, key);
+            }
+            Type ISettingsData.GetDataType()
+            {
+                XmlDocumentNode node;
+                if (settings.XML.TrySelectNode(string.Format("*/{0}/{1}", group, key), out node))
+                {
+                    XmlDocumentAttribute attr = node.Attributes["type"];
+                    if (attr != null)
+                    {
+                        Type currentType = Type.GetType(attr.value);
+                        if (currentType == null)
+                        {
+                            currentType = System.Type.GetType("System." + attr.Value);
+                        }
+//                        if (currentType == null)
+//                        {
+//#if UNITY_EDITOR
+//                            string assm_path = "Library/ScriptAssemblies/Assembly-CSharp.dll";
+//#else
+//string assm_path = "Assembly-CSharp.dll";
+//#endif
+//                            var assm_ex = System.Reflection.Assembly.LoadFrom(assm_path);
+//                            var t = typeof(UnityEngine.Application).Assembly.GetModules();
+//                            var uetypes = assm_ex.GetTypes(); // 1 условие, если нет то                                   
+//                            var types = GetType().Assembly.GetTypes(); // 2 условие                 
+//                            currentType = System.Array.Find(uetypes, type => type.Name == attr.Value);   
+                          
+//                        }
+                        if (currentType == null)
+                        {
+#if UNITY_EDITOR
+                            string assm_path = "Library/ScriptAssemblies/Assembly-CSharp.dll";
+#else
+                            string assm_path = $"{UnityEngine.Application.productName}_Data/Managed/Assembly-CSharp.dll";
+#endif
+                            var assm_ex = System.Reflection.Assembly.LoadFrom(assm_path);
+                            var uetypes = assm_ex.GetTypes();                   
+                            currentType = System.Array.Find(uetypes, type => type.Name == attr.Value);
+                        }
+
+                        if (currentType == null)
+                        {                         
+                            var types = GetType().Assembly.GetTypes();           
+                            currentType = System.Array.Find(types, type => type.Name == attr.Value);
+                        }
+                        if (currentType == null)
+                        {
+                            return typeof(string);
+                        }
+                        return currentType;
+                    }
+                }
+                return typeof(string);
+            }
+
+            void ISettingsData.SetData<T>(T value)
+            {
+                settings.SetValue(group, key, value, false);
+            }
+        }
     }
 }
