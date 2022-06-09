@@ -33,6 +33,11 @@
             "name": "com.chuvi.xmlsystem",
             "expression": "1.0.0",
             "define": "XMLSYSTEM"
+        },
+        {
+            "name": "com.chuvi.extensions",
+            "expression": "1.0.0",
+            "define": "CHUVI_EXTENSIONS"
         }
     ],
     "noEngineReferences": false
