@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class AutoSettingsCreator : EditorWindow
 {
+#if CHUVI_EXTENSIONS
     [MenuItem("Chuvi/AutoSettingsCreator")]
     static void Init()
     {
@@ -52,7 +53,7 @@ public class AutoSettingsCreator : EditorWindow
             Thread.CurrentThread.CurrentCulture = ci;
             Thread.CurrentThread.CurrentUICulture = ci;
             for (int i = 0; i < scripts.Length; i++)
-                if(checks[i])
+                if (checks[i])
                     CreateSettingsXML(scripts[i]);
         }
     }
@@ -69,9 +70,9 @@ public class AutoSettingsCreator : EditorWindow
         for (int i = 0; i < fileds.Length; i++)
         {
             var field = fileds[i];
-            
+
             lines[i] = $"\t\t{field.Name} = XMLSystem.Settings.XMLSettings.GetValueWithAdd(\"{type.Name}\", \"{field.Name}\", {field.Name}{(createValidated ? ", OnSettingsValidate" : "")});";
-            
+
             if (scriptText.Contains(lines[i]))
                 lines[i] = "";
         }
@@ -102,7 +103,7 @@ public class AutoSettingsCreator : EditorWindow
             return;
         settings = "\n\t\t// automatic generated code\n\n" + settings;
         var newbodyStart = bodyStart.Insert(0, settings);
-        if(insertIndex == -1)
+        if (insertIndex == -1)
             scriptText = scriptText.Replace(bodyStart, newbodyStart);
         else
             scriptText = scriptText.Insert(insertIndex, newbodyStart);
@@ -120,5 +121,6 @@ public class AutoSettingsCreator : EditorWindow
 
         File.WriteAllText(path, scriptText);
         AssetDatabase.WriteImportSettingsIfDirty(path);
-    }
+    } 
+#endif
 }

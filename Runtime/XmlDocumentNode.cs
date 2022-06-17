@@ -250,7 +250,11 @@ namespace XMLSystem.Xml
                                 string escaped_space = new string(' ', 2 * (indent + 1));
                                 for (int i = 0; i < lines.Length; i++)
                                 {
-                                    string[] splitLine = lines[i].Split(escaped_space);
+#if NET_STANDARD_2_0
+                                    string[] splitLine = lines[i].Split(new string[] { escaped_space }, StringSplitOptions.RemoveEmptyEntries);
+#else
+                                    string[] splitLine = lines[i].Split(escaped_space); 
+#endif
                                     for (int i1 = 0; i1 < splitLine.Length; i1++)
                                     {
                                         splitLine[i1] = splitLine[i1].TrimStart().Replace(";::tab::;", "");
