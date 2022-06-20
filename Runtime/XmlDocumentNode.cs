@@ -44,6 +44,7 @@ namespace XMLSystem.Xml
         private bool isHTML = false;
         private static ICustomConverter converter;
         public event System.Action<IXmlDocumentNode> ChangeNode;
+        public event System.Action<IXmlDocumentNode, object> ChangeNodeElement;
 
         public static CultureInfo CurrentCulture { get; set; } = new CultureInfo("en-US");
 
@@ -1815,6 +1816,14 @@ namespace XMLSystem.Xml
             var root = Root;
             if (root != null)
                 root.OnRaiseChangeEvent(node);
+        }
+        void IXmlDocumentNode.OnRaiseChangeEvent(IXmlDocumentNode node, object sender)
+        {
+            if (ChangeNodeElement != null)
+                ChangeNodeElement(node, sender);
+            var root = Root;
+            if (root != null)
+                root.OnRaiseChangeEvent(node, sender);
         }
 
         public class UnityConverter : ICustomConverter

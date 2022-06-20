@@ -7,12 +7,15 @@ using XMLSystem.Xml;
 
 namespace XMLSystem.Settings
 {
+    public delegate void ChangeSetting(string group, string key);
     /// <summary>
     /// Статический класс создает файл настроек в формате XML
     /// </summary>
     public class XMLSettings
     {
+
         public static UserXMLSettings instance;
+        public static event ChangeSetting OnChangeSetting;
         /// <summary>
         /// Имя файла по умолчанию
         /// </summary>
@@ -31,7 +34,7 @@ namespace XMLSystem.Settings
 
         static XMLSettings()
         {
-            System.Globalization.CultureInfo ci = new System.Globalization.CultureInfo("en-US");
+            CultureInfo ci = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentCulture = ci;
             Thread.CurrentThread.CurrentUICulture = ci;
             instance = ReloadXML("settings.xml");
@@ -53,7 +56,9 @@ namespace XMLSystem.Settings
         {
             if (instance == null)
             {
-                var _instance = new UserXMLSettings(filename);
+                var _instance = new UserXMLSettings();
+                _instance.OnChangeSetting += _instance_OnChangeSetting; ;
+                _instance.Load(filename);
                 return _instance;
             }
             else
@@ -62,6 +67,12 @@ namespace XMLSystem.Settings
                 return instance;
             }
         }
+
+        private static void _instance_OnChangeSetting(string group, string key)
+        {
+            OnChangeSetting?.Invoke(group, key);
+        }
+
         /// <summary>
         /// Определяет существование указанной группы
         /// </summary>
@@ -244,9 +255,8 @@ namespace XMLSystem.Settings
         : ISettings 
 #endif
     {
-        //private Dictionary<GroupValue, XML_Values> groups = new Dictionary<GroupValue, XML_Values>();
 
-        //public Dictionary<GroupValue, XML_Values> data => groups;
+        public event ChangeSetting OnChangeSetting;
 
         /// <summary>
         /// Делегат проверки типа данных значения
@@ -256,12 +266,12 @@ namespace XMLSystem.Settings
         /// <param name="typeName"></param>
         /// <param name="isValid"></param>
         public delegate void TypeValidationAction(string group, string key, string typeName, bool isValid);
-        /// <summary>
-        /// Делегат оповещения об изменении значения в файле под указанной группой и ключем
-        /// </summary>
-        /// <param name="group"></param>
-        /// <param name="key"></param>
-        public delegate void ChangeEvent(string group, string key);
+        ///// <summary>
+        ///// Делегат оповещения об изменении значения в файле под указанной группой и ключем
+        ///// </summary>
+        ///// <param name="group"></param>
+        ///// <param name="key"></param>
+        //public delegate void ChangeEvent(string group, string key);
 
         private XmlDocument doc;
         private string defaultGroup = "DEFAULT";
@@ -298,12 +308,15 @@ namespace XMLSystem.Settings
         public UserXMLSettings()
         {
             doc = new XmlDocument();
+            doc.ChangeNode += Doc_ChangeNode;
             doc.SetMainNode(XmlDocument.CreateNode("SETTINGS"));
         }
 
         public UserXMLSettings(byte[] bytes)
         {
-            doc = new XmlDocument(bytes);
+            doc = new XmlDocument();
+            doc.ChangeNode += Doc_ChangeNode;
+            doc.Load(bytes);
             if (string.IsNullOrEmpty(doc.Name)) // если файл есть, но он пустой
                 doc.SetMainNode(XmlDocument.CreateNode("SETTINGS"));
         }
@@ -315,6 +328,7 @@ namespace XMLSystem.Settings
         public void Load(string filename)
         {
             doc = new XmlDocument();
+            doc.ChangeNode += Doc_ChangeNode;
             FileName = filename;
             if (!File.Exists(FileName))
             {
@@ -325,6 +339,12 @@ namespace XMLSystem.Settings
             if (string.IsNullOrEmpty(doc.Name)) // если файл есть, но он пустой
                 doc.SetMainNode(XmlDocument.CreateNode("SETTINGS"));
         }
+
+        private void Doc_ChangeNode(IXmlDocumentNode obj)
+        {
+            OnChangeSetting?.Invoke(obj.Parent.Name, obj.Name);
+        }
+
         /// <summary>
         /// Определяет существование указанной группы
         /// </summary>

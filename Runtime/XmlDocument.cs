@@ -12,6 +12,7 @@ namespace XMLSystem.Xml
         private Dictionary<string, string> mathes;
         private int key = 0;
         public event System.Action<IXmlDocumentNode> ChangeNode;
+        public event System.Action<IXmlDocumentNode, object> ChangeNodeElement;
 
         public string InnerText
         {
@@ -177,6 +178,11 @@ namespace XMLSystem.Xml
         {
             if (ChangeNode != null)
                 ChangeNode(node);
+        }
+        void IXmlDocumentNode.OnRaiseChangeEvent(IXmlDocumentNode node, object sender)
+        {
+            if (ChangeNodeElement != null)
+                ChangeNodeElement(node, sender);
         }
 
         /// <summary>

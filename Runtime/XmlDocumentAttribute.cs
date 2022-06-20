@@ -3,6 +3,7 @@ namespace XMLSystem.Xml
 {
     public class XmlDocumentAttribute
     {
+        public delegate void ChangeAttribute(XmlDocumentAttribute sender);
         internal XmlDocumentNode parent;
         internal string name;
         internal string value;
@@ -12,7 +13,7 @@ namespace XMLSystem.Xml
         /// Возвращает узел, к которому пренадлежит аттрибут
         /// </summary>
         public XmlDocumentNode Node { get { return parent; } }
-
+        public event ChangeAttribute OnChange;
         /// <summary>
         /// Возвращает или задает имя аттрибута (! без проверки на правильный формат)
         /// </summary>
@@ -24,7 +25,8 @@ namespace XMLSystem.Xml
                 if (name != value)
                 {
                     (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node);
-                    name = value;  
+                    name = value;
+                    OnChange?.Invoke(this);
                 }
             }
         }
@@ -73,7 +75,8 @@ namespace XMLSystem.Xml
                     this.value = this.value.Replace("\n", "&#10;");
                     this.value = this.value.Replace(" ", "&#160;");
                     if(Node != null)
-                        (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node);
+                        (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node, this);
+                    OnChange?.Invoke(this);
                 }
             }
         }
@@ -89,7 +92,9 @@ namespace XMLSystem.Xml
                 if (objValue != value)
                 {
                     objValue = value;
-                    (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node);
+                    if (Node != null)
+                        (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node, this);
+                    OnChange?.Invoke(this);
                 }
             } 
         }

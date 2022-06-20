@@ -1,7 +1,7 @@
 {
   "name": "com.chuvi.xmlsystem",
   "displayName": "XMLSystem",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "unity": "2018.1",
   "description": "Simple XML parser.\nDependices: https://github.com/chuvi1155/com.chuvi.extensions.git",
   "author": {
@@ -12,8 +12,5 @@
   "type": "tool",
   "gitDependencies": {
     "com.chuvi.extensions": "https://github.com/chuvi1155/com.chuvi.extensions.git"
-  },
-  "dependencies": {
-    "com.chuvi.extensions": "1.0.1"
   }
 }

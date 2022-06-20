@@ -159,5 +159,6 @@ namespace XMLSystem.Xml
         /// <returns></returns>
         string ToJSON();
         void OnRaiseChangeEvent(IXmlDocumentNode node);
+        void OnRaiseChangeEvent(IXmlDocumentNode node, object sender);
     }
 }
