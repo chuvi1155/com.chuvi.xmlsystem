@@ -133,8 +133,8 @@ namespace XMLSystem.Xml
 
         public void Load(byte[] xml)
         {
-            MemoryStream mstream = new MemoryStream(xml);
-            Load(mstream);
+            using (MemoryStream mstream = new MemoryStream(xml))
+                Load(mstream);
         }
         public void Load(Stream stream)
         {
