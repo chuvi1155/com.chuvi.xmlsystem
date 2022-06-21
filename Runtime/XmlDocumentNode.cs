@@ -43,8 +43,16 @@ namespace XMLSystem.Xml
         private int key = 0;
         private bool isHTML = false;
         private static ICustomConverter converter;
-        public event System.Action<IXmlDocumentNode> ChangeNode;
-        public event System.Action<IXmlDocumentNode, object> ChangeNodeElement;
+
+        public delegate void NodeAction(IXmlDocumentNode node);
+        public delegate void ElementNodeAction(IXmlDocumentNode node, object element);
+
+        public event NodeAction AddNode;
+        public event ElementNodeAction AddNodeElement;
+        public event NodeAction RemoveNode;
+        public event ElementNodeAction RemoveNodeElement;
+        public event NodeAction ChangeNode;
+        public event ElementNodeAction ChangeNodeElement;
 
         public static CultureInfo CurrentCulture { get; set; } = new CultureInfo("en-US");
 
@@ -94,19 +102,6 @@ namespace XMLSystem.Xml
         {
             get
             {
-                //string temp = innerText;
-                //if (temp.Contains("&"))
-                //{
-                //    temp = temp.Replace("&amp;", "&");
-                //    temp = temp.Replace("&lt;", "<");
-                //    temp = temp.Replace("&gt;", ">");
-                //    temp = temp.Replace("&apos;", "'");
-                //    temp = temp.Replace("&quot;", "\"");
-                //    temp = temp.Replace("&nl;", "\n");
-                //    temp = temp.Replace("&#10;", "\n");
-                //    temp = temp.Replace("&#160;", " ");
-                //}
-                //return temp;
                 return XmlDocument.DecodeToXML(innerText);
             }
             set
@@ -114,19 +109,25 @@ namespace XMLSystem.Xml
                 if (innerText != value)
                 {
                     innerText = value;
-                    ((IXmlDocumentNode)this).OnRaiseChangeEvent(this);
+                    OnRaiseChangeEvent(this, null);
                 }
-                //innerText = innerText.Replace("<", "&lt;");
-                //innerText = innerText.Replace(">", "&gt;");
-                //innerText = innerText.Replace("'", "&apos;");
-                //innerText = innerText.Replace("\"", "&quot;");
-                //innerText = innerText.Replace("\n", "&nl;");
             }
         }
         /// <summary>
         /// 
         /// </summary>
-        public XNodeType NodeType { get { return nodeType; } set { nodeType = value; } }
+        public XNodeType NodeType 
+        {
+            get { return nodeType; } 
+            set 
+            {
+                if (nodeType != value)
+                {
+                    nodeType = value;
+                    OnRaiseChangeEvent(this, null);
+                }
+            }
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -150,7 +151,14 @@ namespace XMLSystem.Xml
         /// <summary>
         /// Возвращает родительский узел
         /// </summary>
-        public XmlDocumentNode Parent { get { return parent; } internal set { parent = value; } }
+        public XmlDocumentNode Parent 
+        {
+            get { return parent; } 
+            internal set 
+            {
+                parent = value; 
+            } 
+        }
         /// <summary>
         /// Возвращает или задает имя узла
         /// </summary>
@@ -433,7 +441,7 @@ namespace XMLSystem.Xml
         public void AddChildNode(XmlDocumentNode node)
         {
             childNodes.Add(this, node);
-            ((IXmlDocumentNode)this).OnRaiseChangeEvent(this);
+            OnRaiseAddEvent(this, null);
         }
         /// <summary>
         /// Добавляет дочерний узел
@@ -444,7 +452,9 @@ namespace XMLSystem.Xml
         {
             node.nodeType = type;
             childNodes.Add(this, node);
-            ((IXmlDocumentNode)this).OnRaiseChangeEvent(this);
+            node.AddNode += (n) => OnRaiseAddEvent(n, null);
+            node.AddNodeElement += OnRaiseAddEvent;
+            OnRaiseAddEvent(this, null);
         }
         /// <summary>
         /// Вставляет дочерний узел
@@ -455,7 +465,7 @@ namespace XMLSystem.Xml
         {
             node.parent = this;
             childNodes.Insert(index, node);
-            ((IXmlDocumentNode)this).OnRaiseChangeEvent(this);
+            OnRaiseAddEvent(this, null);
         }
         /// <summary>
         /// Добавляет атрибут
@@ -464,7 +474,7 @@ namespace XMLSystem.Xml
         public void AddAttribute(XmlDocumentAttribute attribute)
         {
             attributes.Add(this, attribute);
-            ((IXmlDocumentNode)this).OnRaiseChangeEvent(this);
+            OnRaiseAddEvent(this, attribute);
         }
         /// <summary>
         /// Добавляет атрибут
@@ -473,8 +483,9 @@ namespace XMLSystem.Xml
         /// <param name="value"></param>
         public void AddAttribute(string key, string value)
         {
-            attributes.Add(this, new XmlDocumentAttribute(this, key, value));
-            ((IXmlDocumentNode)this).OnRaiseChangeEvent(this);
+            var attr = new XmlDocumentAttribute(this, key, value);
+            attributes.Add(this, attr);
+            OnRaiseAddEvent(this, attr);
         }
         /// <summary>
         /// Добавляет атрибут
@@ -483,8 +494,9 @@ namespace XMLSystem.Xml
         /// <param name="value">будет вызван метод ToString()</param>
         public void AddAttribute(string key, object value)
         {
-            attributes.Add(this, new XmlDocumentAttribute(this, key, value));
-            ((IXmlDocumentNode)this).OnRaiseChangeEvent(this);
+            var attr = new XmlDocumentAttribute(this, key, value);
+            attributes.Add(this, attr);
+            OnRaiseAddEvent(this, attr);
         }
         /// <summary>
         /// Осуществляет поиск узлов по пути XPath
@@ -1111,6 +1123,8 @@ namespace XMLSystem.Xml
         /// </summary>
         public void Dispose()
         {
+            AddNode = null;
+            AddNodeElement = null;
             parent = null;
             attributes.Clear();
             attributes = null;
@@ -1809,21 +1823,73 @@ namespace XMLSystem.Xml
         }
         #endregion
 
-        void IXmlDocumentNode.OnRaiseChangeEvent(IXmlDocumentNode node)
+        //void OnRaiseChangeEvent(IXmlDocumentNode node)
+        //{
+        //    if (ChangeNode != null)
+        //        ChangeNode(node);
+        //    //var root = Root;
+        //    //if (root != null)
+        //    //    root.OnRaiseChangeEvent(node);
+        //}
+        internal void OnRaiseAddEvent(IXmlDocumentNode node, object sender)
         {
-            if (ChangeNode != null)
-                ChangeNode(node);
-            var root = Root;
-            if (root != null)
-                root.OnRaiseChangeEvent(node);
+            if (sender != null)
+            {
+                if (AddNodeElement != null)
+                    AddNodeElement(node, sender);
+            }
+            else
+            {
+                if (AddNode != null)
+                    AddNode(node);
+            }
+            //var root = Root;
+            //if (root != null)
+            //    root.OnRaiseChangeEvent(node, sender);
         }
-        void IXmlDocumentNode.OnRaiseChangeEvent(IXmlDocumentNode node, object sender)
+        internal void OnRaiseRemoveEvent(IXmlDocumentNode node, object sender)
         {
-            if (ChangeNodeElement != null)
-                ChangeNodeElement(node, sender);
-            var root = Root;
-            if (root != null)
-                root.OnRaiseChangeEvent(node, sender);
+            if (sender != null)
+            {
+                if (RemoveNodeElement != null)
+                    RemoveNodeElement(node, sender);
+            }
+            else
+            {
+                if (RemoveNode != null)
+                    RemoveNode(node);
+            }
+            //var root = Root;
+            //if (root != null)
+            //    root.OnRaiseChangeEvent(node, sender);
+        }
+        internal void OnRaiseChangeEvent(IXmlDocumentNode node, object sender)
+        {
+            if (sender != null)
+            {
+                if (ChangeNodeElement != null)
+                    ChangeNodeElement(node, sender);
+                else
+                {
+                    var root = Root as XmlDocumentNode;
+                    if (root != null)
+                        root.OnRaiseChangeEvent(node, sender);
+                }
+            }
+            else
+            {
+                if (ChangeNode != null)
+                    ChangeNode(node);
+                else
+                {
+                    var root = Root as XmlDocumentNode;
+                    if (root != null)
+                        root.OnRaiseChangeEvent(node, sender);
+                }
+            }
+            //var root = Root;
+            //if (root != null)
+            //    root.OnRaiseChangeEvent(node, sender);
         }
 
         public class UnityConverter : ICustomConverter

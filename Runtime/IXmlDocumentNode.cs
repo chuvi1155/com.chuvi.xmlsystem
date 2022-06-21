@@ -69,12 +69,12 @@ namespace XMLSystem.Xml
         /// </summary>
         /// <param name="attribute"></param>
         void AddAttribute(XmlDocumentAttribute attribute);
-        /// <summary>
-        /// Добавляет атрибут
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        void AddAttribute(string key, string value);
+        ///// <summary>
+        ///// Добавляет атрибут
+        ///// </summary>
+        ///// <param name="key"></param>
+        ///// <param name="value"></param>
+        //void AddAttribute(string key, string value);
         /// <summary>
         /// Добавляет атрибут
         /// </summary>
@@ -158,7 +158,11 @@ namespace XMLSystem.Xml
         /// </summary>
         /// <returns></returns>
         string ToJSON();
-        void OnRaiseChangeEvent(IXmlDocumentNode node);
-        void OnRaiseChangeEvent(IXmlDocumentNode node, object sender);
+        //void OnRaiseAddEvent(IXmlDocumentNode node);
+        //void OnRaiseAddEvent(IXmlDocumentNode node, object sender);
+        //void OnRaiseRemoveEvent(IXmlDocumentNode node);
+        //void OnRaiseRemoveEvent(IXmlDocumentNode node, object sender);
+        //void OnRaiseChangeEvent(IXmlDocumentNode node);
+        //void OnRaiseChangeEvent(IXmlDocumentNode node, object sender);
     }
 }

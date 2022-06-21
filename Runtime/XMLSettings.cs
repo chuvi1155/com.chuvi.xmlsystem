@@ -57,12 +57,14 @@ namespace XMLSystem.Settings
             if (instance == null)
             {
                 var _instance = new UserXMLSettings();
-                _instance.OnChangeSetting += _instance_OnChangeSetting; ;
+                _instance.OnChangeSetting += _instance_OnChangeSetting;
                 _instance.Load(filename);
                 return _instance;
             }
             else
             {
+                instance.OnChangeSetting -= _instance_OnChangeSetting;
+                instance.OnChangeSetting += _instance_OnChangeSetting;
                 instance.Load(filename);
                 return instance;
             }
@@ -315,7 +317,6 @@ namespace XMLSystem.Settings
         public UserXMLSettings(byte[] bytes)
         {
             doc = new XmlDocument();
-            doc.ChangeNode += Doc_ChangeNode;
             doc.Load(bytes);
             if (string.IsNullOrEmpty(doc.Name)) // если файл есть, но он пустой
                 doc.SetMainNode(XmlDocument.CreateNode("SETTINGS"));
@@ -342,7 +343,8 @@ namespace XMLSystem.Settings
 
         private void Doc_ChangeNode(IXmlDocumentNode obj)
         {
-            OnChangeSetting?.Invoke(obj.Parent.Name, obj.Name);
+            //if(obj.Parent != null)
+                OnChangeSetting?.Invoke(obj.Parent.Name, obj.Name);
         }
 
         /// <summary>

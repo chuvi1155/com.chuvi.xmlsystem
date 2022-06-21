@@ -24,9 +24,9 @@ namespace XMLSystem.Xml
             {
                 if (name != value)
                 {
-                    (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node);
                     name = value;
                     OnChange?.Invoke(this);
+                    Node.OnRaiseChangeEvent(Node, this);
                 }
             }
         }
@@ -74,9 +74,9 @@ namespace XMLSystem.Xml
                     this.value = this.value.Replace("\"", "&quot;");
                     this.value = this.value.Replace("\n", "&#10;");
                     this.value = this.value.Replace(" ", "&#160;");
-                    if(Node != null)
-                        (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node, this);
                     OnChange?.Invoke(this);
+                    if (Node != null)
+                        Node.OnRaiseChangeEvent(Node, this);
                 }
             }
         }
@@ -92,9 +92,9 @@ namespace XMLSystem.Xml
                 if (objValue != value)
                 {
                     objValue = value;
-                    if (Node != null)
-                        (Node as IXmlDocumentNode).OnRaiseChangeEvent(Node, this);
                     OnChange?.Invoke(this);
+                    if (Node != null)
+                        Node.OnRaiseChangeEvent(Node, this);
                 }
             } 
         }

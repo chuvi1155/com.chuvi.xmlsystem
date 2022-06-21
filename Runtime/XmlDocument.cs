@@ -11,6 +11,10 @@ namespace XMLSystem.Xml
         XmlDocumentNode mainNode;
         private Dictionary<string, string> mathes;
         private int key = 0;
+        public event System.Action<IXmlDocumentNode> AddNode;
+        public event System.Action<IXmlDocumentNode, object> AddNodeElement;
+        public event System.Action<IXmlDocumentNode> RemoveNode;
+        public event System.Action<IXmlDocumentNode, object> RemoveNodeElement;
         public event System.Action<IXmlDocumentNode> ChangeNode;
         public event System.Action<IXmlDocumentNode, object> ChangeNodeElement;
 
@@ -133,8 +137,8 @@ namespace XMLSystem.Xml
 
         public void Load(byte[] xml)
         {
-            using (MemoryStream mstream = new MemoryStream(xml))
-                Load(mstream);
+            MemoryStream mstream = new MemoryStream(xml);
+            Load(mstream);
         }
         public void Load(Stream stream)
         {
@@ -145,6 +149,12 @@ namespace XMLSystem.Xml
         public void Load(string xmlText)
         {
             mainNode = new XmlDocumentNode(null);
+            mainNode.AddNode += OnRaiseAddEvent;
+            mainNode.AddNodeElement += OnRaiseAddEvent;
+            mainNode.RemoveNode += OnRaiseRemoveEvent;
+            mainNode.RemoveNodeElement += OnRaiseRemoveEvent;
+            mainNode.ChangeNode += OnRaiseChangeEvent;
+            mainNode.ChangeNodeElement += OnRaiseChangeEvent;
             string nodeText;
             if (xmlText.IndexOf("?>") >= 0) nodeText = xmlText.Substring(xmlText.IndexOf("?>") + 2).Trim();
             else nodeText = xmlText;
@@ -174,15 +184,35 @@ namespace XMLSystem.Xml
             mathes = null;
         }
 
-        void IXmlDocumentNode.OnRaiseChangeEvent(IXmlDocumentNode node)
+        void OnRaiseChangeEvent(IXmlDocumentNode node)
         {
             if (ChangeNode != null)
                 ChangeNode(node);
         }
-        void IXmlDocumentNode.OnRaiseChangeEvent(IXmlDocumentNode node, object sender)
+        void OnRaiseChangeEvent(IXmlDocumentNode node, object sender)
         {
             if (ChangeNodeElement != null)
                 ChangeNodeElement(node, sender);
+        }
+        void OnRaiseAddEvent(IXmlDocumentNode node)
+        {
+            if (AddNode != null)
+                AddNode(node);
+        }
+        void OnRaiseAddEvent(IXmlDocumentNode node, object sender)
+        {
+            if (AddNodeElement != null)
+                AddNodeElement(node, sender);
+        }
+        void OnRaiseRemoveEvent(IXmlDocumentNode node)
+        {
+            if (RemoveNode != null)
+                RemoveNode(node);
+        }
+        void OnRaiseRemoveEvent(IXmlDocumentNode node, object sender)
+        {
+            if (RemoveNodeElement != null)
+                RemoveNodeElement(node, sender);
         }
 
         /// <summary>
@@ -193,6 +223,12 @@ namespace XMLSystem.Xml
         public void LoadJSON(string jsonText)
         {
             mainNode = new XmlDocumentNode(null);
+            mainNode.AddNode += OnRaiseAddEvent;
+            mainNode.AddNodeElement += OnRaiseAddEvent;
+            mainNode.RemoveNode += OnRaiseRemoveEvent;
+            mainNode.RemoveNodeElement += OnRaiseRemoveEvent;
+            mainNode.ChangeNode += OnRaiseChangeEvent;
+            mainNode.ChangeNodeElement += OnRaiseChangeEvent;
             mainNode.Name = "____JSON_BASE____";
 
             string nodeText = jsonText;
@@ -262,6 +298,18 @@ namespace XMLSystem.Xml
         public void SetMainNode(XmlDocumentNode node)
         {
             mainNode = node;
+            mainNode.AddNode -= OnRaiseAddEvent;
+            mainNode.AddNodeElement -= OnRaiseAddEvent;
+            mainNode.AddNode += OnRaiseAddEvent;
+            mainNode.AddNodeElement += OnRaiseAddEvent;
+            mainNode.RemoveNode -= OnRaiseRemoveEvent;
+            mainNode.RemoveNodeElement -= OnRaiseRemoveEvent;
+            mainNode.RemoveNode += OnRaiseRemoveEvent;
+            mainNode.RemoveNodeElement += OnRaiseRemoveEvent;
+            mainNode.ChangeNode -= OnRaiseChangeEvent;
+            mainNode.ChangeNodeElement -= OnRaiseChangeEvent;
+            mainNode.ChangeNode += OnRaiseChangeEvent;
+            mainNode.ChangeNodeElement += OnRaiseChangeEvent;
         }
 
         public override string ToString()
@@ -281,37 +329,39 @@ namespace XMLSystem.Xml
         public void AddChildNode(XmlDocumentNode node)
         {
             ((IXmlDocumentNode)mainNode).AddChildNode(node);
-            (mainNode as IXmlDocumentNode).OnRaiseChangeEvent(this);
+            //(mainNode as IXmlDocumentNode).OnRaiseAddEvent(this);
         }
 
         public void AddChildNode(XmlDocumentNode node, XNodeType type)
         {
             ((IXmlDocumentNode)mainNode).AddChildNode(node, type);
-            (mainNode as IXmlDocumentNode).OnRaiseChangeEvent(this);
+            //(mainNode as IXmlDocumentNode).OnRaiseAddEvent(this);
         }
 
         public void InsertChildNode(int index, XmlDocumentNode node)
         {
             ((IXmlDocumentNode)mainNode).InsertChildNode(index, node);
-            (mainNode as IXmlDocumentNode).OnRaiseChangeEvent(this);
+            //(mainNode as IXmlDocumentNode).OnRaiseAddEvent(this);
         }
 
         public void AddAttribute(XmlDocumentAttribute attribute)
         {
             ((IXmlDocumentNode)mainNode).AddAttribute(attribute);
-            (mainNode as IXmlDocumentNode).OnRaiseChangeEvent(this);
+            //(mainNode as IXmlDocumentNode).OnRaiseAddEvent(this, attribute);
         }
 
-        void IXmlDocumentNode.AddAttribute(string key, string value)
-        {
-            ((IXmlDocumentNode)mainNode).AddAttribute(new XmlDocumentAttribute(mainNode, key, value));
-            (mainNode as IXmlDocumentNode).OnRaiseChangeEvent(this);
-        }
+        //void IXmlDocumentNode.AddAttribute(string key, string value)
+        //{
+        //    var attr = new XmlDocumentAttribute(mainNode, key, value);
+        //    ((IXmlDocumentNode)mainNode).AddAttribute(attr);
+        //    //(mainNode as IXmlDocumentNode).OnRaiseAddEvent(this, attr);
+        //}
 
         public void AddAttribute(string key, object value)
         {
-            ((IXmlDocumentNode)mainNode).AddAttribute(key, value);
-            (mainNode as IXmlDocumentNode).OnRaiseChangeEvent(this);
+            var attr = new XmlDocumentAttribute(mainNode, key, value);
+            ((IXmlDocumentNode)mainNode).AddAttribute(attr);
+            //(mainNode as IXmlDocumentNode).OnRaiseChangeEvent(this);
         }
 
         public List<XmlDocumentNode> SelectNodes(string xPath)
