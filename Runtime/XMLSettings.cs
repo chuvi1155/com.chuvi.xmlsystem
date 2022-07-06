@@ -298,7 +298,23 @@ namespace XMLSystem.Settings
         /// <summary>
         /// Имя файла по умолчанию
         /// </summary>
-        public string FileName { get { return fileName; } set { fileName = value; } }
+        public string FileName 
+        {
+            get 
+            {
+#if UNITY_ANDROID
+                return Path.Combine(UnityEngine.Application.persistentDataPath, FileName); //ANDROID
+#elif UNITY_IOS
+                return Path.Combine(UnityEngine.Application.persistentDataPath, FileName); //iOS
+#else
+                return fileName;
+#endif
+            } 
+            set 
+            { 
+                fileName = value; 
+            } 
+        }
         /// <summary>
         /// Создает экземпляр класса настроек
         /// </summary>
@@ -331,6 +347,7 @@ namespace XMLSystem.Settings
             doc = new XmlDocument();
             doc.ChangeNode += Doc_ChangeNode;
             FileName = filename;
+
             if (!File.Exists(FileName))
             {
                 doc.SetMainNode(XmlDocument.CreateNode("SETTINGS"));
@@ -624,9 +641,10 @@ namespace XMLSystem.Settings
             Save(FileName);
         }
         /// <summary>
-        /// Сохранить изменения проведенные после операции SetValue
+        /// Сохранить изменения проведенные после операции SetValue.
+        /// Не изменяет значение свойства <see cref="FileName"/>
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">Полный путь к файлу с учетом платформы</param>
         public void Save(string fileName)
         {
             doc.Save(fileName);
