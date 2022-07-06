@@ -303,9 +303,9 @@ namespace XMLSystem.Settings
             get 
             {
 #if UNITY_ANDROID
-                return Path.Combine(UnityEngine.Application.persistentDataPath, FileName); //ANDROID
+                return Path.Combine(UnityEngine.Application.persistentDataPath, fileName); //ANDROID
 #elif UNITY_IOS
-                return Path.Combine(UnityEngine.Application.persistentDataPath, FileName); //iOS
+                return Path.Combine(UnityEngine.Application.persistentDataPath, fileName); //iOS
 #else
                 return fileName;
 #endif
