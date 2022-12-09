@@ -496,13 +496,16 @@ namespace XMLSystem.Xml
         {
             string temp = xml;
 
-            temp = temp.Replace("&", "&amp;");
-            temp = temp.Replace("<", "&lt;");
-            temp = temp.Replace(">", "&gt;");
-            temp = temp.Replace("'", "&apos;");
-            temp = temp.Replace("\"", "&quot;");
-            temp = temp.Replace("\n", "&#10;");
-            temp = temp.Replace(" ", "&#160;");
+            if (temp != null)
+            {
+                temp = temp.Replace("&", "&amp;");
+                temp = temp.Replace("<", "&lt;");
+                temp = temp.Replace(">", "&gt;");
+                temp = temp.Replace("'", "&apos;");
+                temp = temp.Replace("\"", "&quot;");
+                temp = temp.Replace("\n", "&#10;");
+                temp = temp.Replace(" ", "&#160;"); 
+            }
 
             return temp;
         }
@@ -510,7 +513,7 @@ namespace XMLSystem.Xml
         public static string DecodeToXML(string innertext)
         {
             string temp = innertext;
-            if (temp.Contains("&"))
+            if (temp != null && temp.Contains("&"))
             {
                 temp = temp.Replace("&amp;", "&");
                 temp = temp.Replace("&lt;", "<");
