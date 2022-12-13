@@ -2234,7 +2234,7 @@ namespace XMLSystem.Xml
                     else result = default(UnityEngine.Vector4);
                     return;
                 }
-                else if (typeof(T) == typeof(UnityEngine.Quaternion))
+                else if (returnedType == typeof(UnityEngine.Quaternion))
                 {
                     int n1 = value.IndexOf("(") + 1;
                     int n2 = value.IndexOf(")");
@@ -2242,15 +2242,16 @@ namespace XMLSystem.Xml
                     string[] bytes = val.Replace("{", "").Replace("}", "").Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (bytes.Length > 2)
                     {
-                        float r = float.Parse(bytes[0], ci);
-                        float g = float.Parse(bytes[1], ci);
-                        float b = float.Parse(bytes[2], ci);
-                        float a = float.Parse(bytes[3], ci);
+                        float r = float.Parse(bytes[0], CurrentCulture);
+                        float g = float.Parse(bytes[1], CurrentCulture);
+                        float b = float.Parse(bytes[2], CurrentCulture);
+                        float a = float.Parse(bytes[3], CurrentCulture);
                         object col = new UnityEngine.Quaternion(r, g, b, a);
-                        return (T)col;
+                        result = col;
                     }
                     else
-                        return default(T);
+                        result = default(UnityEngine.Quaternion);
+                    return;
                 }
                 else if (returnedType == typeof(UnityEngine.Rect))
                 {
