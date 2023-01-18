@@ -266,7 +266,7 @@ namespace XMLSystem.Xml
 #endif
                                     for (int i1 = 0; i1 < splitLine.Length; i1++)
                                     {
-                                        splitLine[i1] = splitLine[i1].TrimStart().Replace(";::tab::;", "");
+                                        splitLine[i1] = splitLine[i1].TrimStart().Replace(";::tab::;", "\t");
                                     }
                                     lines[i] = string.Join("\n", splitLine);
                                 }
