@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections;
@@ -166,9 +166,9 @@ namespace XMLSystem.Xml
             Regex regex = new Regex("\".*?\"");
             nodeText = regex.Replace(nodeText, MatchEvaluatorMethod);
 
-            nodeText = nodeText.Replace("\n", string.Empty); //";::nl::;");
-            nodeText = nodeText.Replace("\r", string.Empty);
-            nodeText = nodeText.Replace("\t", string.Empty); //";::tab::;");
+            nodeText = nodeText.Replace("\n", ""); //";::nl::;");
+            nodeText = nodeText.Replace("\r", "");
+            nodeText = nodeText.Replace("\t", "&#9;"); //";::tab::;");
 
             Regex regex2 = new Regex(@"(\#\#\d+\#\#)");
             //foreach (var item in mathes)
@@ -503,6 +503,7 @@ namespace XMLSystem.Xml
                 temp = temp.Replace(">", "&gt;");
                 temp = temp.Replace("'", "&apos;");
                 temp = temp.Replace("\"", "&quot;");
+                temp = temp.Replace("\t", "&#9;");
                 temp = temp.Replace("\n", "&#10;");
                 temp = temp.Replace(" ", "&#160;"); 
             }
@@ -521,6 +522,7 @@ namespace XMLSystem.Xml
                 temp = temp.Replace("&apos;", "'");
                 temp = temp.Replace("&quot;", "\"");
                 temp = temp.Replace("&nl;", "\n");
+                temp = temp.Replace("&#9;", "\t");
                 temp = temp.Replace("&#10;", "\n");
                 temp = temp.Replace("&#160;", " ");
             }
