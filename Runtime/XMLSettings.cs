@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using UnityEngine;
 using XMLSystem.Xml;
 
 namespace XMLSystem.Settings
@@ -37,7 +38,11 @@ namespace XMLSystem.Settings
             CultureInfo ci = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentCulture = ci;
             Thread.CurrentThread.CurrentUICulture = ci;
-            instance = ReloadXML("settings.xml");
+#if !UNITY_ANDROID && !UNITY_IOS
+            instance = ReloadXML("settings.xml"); 
+#else
+            instance = ReloadXML(Path.Combine(Application.persistentDataPath, "settings.xml"));
+#endif
 
 #if CHUVI_EXTENSIONS && CHUVI_SETTINGS
             UnityEngine.GameObject go = UnityEngine.Resources.Load<UnityEngine.GameObject>("Settings");
