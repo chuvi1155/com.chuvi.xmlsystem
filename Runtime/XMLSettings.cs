@@ -38,7 +38,7 @@ namespace XMLSystem.Settings
             CultureInfo ci = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentCulture = ci;
             Thread.CurrentThread.CurrentUICulture = ci;
-#if !UNITY_ANDROID && !UNITY_IOS
+#if !UNITY_ANDROID && !UNITY_IOS && !UNITY_STANDALONE_OSX
             instance = ReloadXML("settings.xml"); 
 #else
             instance = ReloadXML(Path.Combine(Application.persistentDataPath, "settings.xml"));
@@ -311,6 +311,8 @@ namespace XMLSystem.Settings
                 return Path.Combine(UnityEngine.Application.persistentDataPath, fileName); //ANDROID
 #elif UNITY_IOS
                 return Path.Combine(UnityEngine.Application.persistentDataPath, fileName); //iOS
+#elif UNITY_STANDALONE_OSX
+                return Path.Combine(UnityEngine.Application.persistentDataPath, fileName); //MAC
 #else
                 return fileName;
 #endif
