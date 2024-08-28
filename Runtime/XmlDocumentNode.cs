@@ -233,7 +233,7 @@ namespace XMLSystem.Xml
                             if (itemAttr.Success)
                             {
                                 string name = itemAttr.Groups["name"].Value.Trim().Replace(";::nl::;", "\n").Replace(";::tab::;", "\t");
-                                string value = itemAttr.Groups["val"].Value.Replace(";::nl::;", "\n").Replace(";::tab::;", "\t");
+                                string value = itemAttr.Groups["val"].Value.Trim('\'').Replace(";::nl::;", "\n").Replace(";::tab::;", "\t");
                                 AddAttribute(new XmlDocumentAttribute(this, name, value));
                             }
                         }
