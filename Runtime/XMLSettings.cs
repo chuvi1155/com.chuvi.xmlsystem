@@ -61,18 +61,20 @@ namespace XMLSystem.Settings
         {
             if (instance == null)
             {
-                var _instance = new UserXMLSettings();
-                _instance.OnChangeSetting += _instance_OnChangeSetting;
-                _instance.Load(filename);
-                return _instance;
+                Debug.Log("Load parameters from: " + filename);
+                instance = new UserXMLSettings();
+                instance.OnChangeSetting += _instance_OnChangeSetting;
+                instance.Load(filename);
             }
             else
             {
+                Debug.Log("Reload parameters from: " + filename);
                 instance.OnChangeSetting -= _instance_OnChangeSetting;
+                instance = new UserXMLSettings();
                 instance.OnChangeSetting += _instance_OnChangeSetting;
                 instance.Load(filename);
-                return instance;
             }
+            return instance;
         }
 
         private static void _instance_OnChangeSetting(string group, string key)
@@ -351,6 +353,8 @@ namespace XMLSystem.Settings
         /// <returns></returns>
         public void Load(string filename)
         {
+            if (doc != null)
+                doc.ChangeNode -= Doc_ChangeNode;
             doc = new XmlDocument();
             doc.ChangeNode += Doc_ChangeNode;
             FileName = filename;
